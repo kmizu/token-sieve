@@ -1,0 +1,18 @@
+{
+  "name": "token-sieve",
+  "version": "0.1.0",
+  "description": "Keep verbose command output out of model context while preserving full local logs and original exit status.",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Token Sieve",
+    "shortDescription": "Compact tool output with recoverable evidence.",
+    "longDescription": "Capture verbose builds, tests and searches locally; return bounded excerpts and inspect exact line ranges on demand.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Use Token Sieve to reduce verbose tool output while retaining the full logs and checking actual exit status."
+  }
+}
