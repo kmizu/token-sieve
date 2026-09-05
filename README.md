@@ -4,9 +4,63 @@ Keep verbose command output out of model context, with full logs available for i
 
 This Codex plugin contains one small skill and a dependency-free Python CLI. It captures command output on disk and returns a bounded head/diagnostic/tail excerpt with the original exit status, byte count and SHA-256. It can also summarize an existing text file and retrieve specific lines or literal matches. It makes no LLM or network calls.
 
-## Use
+## Install in Codex
 
-Install from the personal marketplace with `codex plugin add token-sieve@personal`, then start a new thread. Ask: “Use $token-sieve for the test run; inspect the full failure details if needed.”
+Requirements: Git, Python 3.10+, and a Codex CLI with `codex plugin` support. Check with `python3 --version` and `codex plugin --help`. The plugin needs no API key, MCP server, or Python packages. See the [official Codex plugin documentation](https://learn.chatgpt.com/docs/plugins) for the host setup.
+
+### macOS, Linux, or WSL
+
+Clone this repository into a small local marketplace, register it, and install the plugin:
+
+```sh
+SIEVE_MARKETPLACE="$HOME/token-sieve-marketplace"
+mkdir -p "$SIEVE_MARKETPLACE/plugins" "$SIEVE_MARKETPLACE/.agents/plugins"
+git clone https://github.com/kmizu/token-sieve.git "$SIEVE_MARKETPLACE/plugins/token-sieve"
+cat > "$SIEVE_MARKETPLACE/.agents/plugins/marketplace.json" <<'JSON'
+{
+  "name": "token-sieve-local",
+  "interface": { "displayName": "Token Sieve" },
+  "plugins": [{
+    "name": "token-sieve",
+    "source": { "source": "local", "path": "./plugins/token-sieve" },
+    "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+    "category": "Productivity"
+  }]
+}
+JSON
+codex plugin marketplace add "$SIEVE_MARKETPLACE"
+codex plugin add token-sieve@token-sieve-local
+codex plugin list --marketplace token-sieve-local
+```
+
+These are first-install commands; use a new directory if `~/token-sieve-marketplace` already contains other work. Keep the clone in place because the marketplace points to it. In WSL, run the commands inside WSL and use the Codex environment that shares that filesystem.
+
+The repository itself is a plugin, not a marketplace, so `codex plugin marketplace add kmizu/token-sieve` is not the installation command. The local manifest above supplies that missing marketplace layer. The author's `token-sieve@personal` installation is also local to their machine; use `token-sieve@token-sieve-local` with these instructions.
+
+### Start using it
+
+Start a **new Codex thread** after installation so the skill is discovered. For the Codex app, use the same local environment as the CLI; restart the app if the skill does not appear. In the prompt box, type `$` and choose Token Sieve, or ask:
+
+```text
+Use $token-sieve for the test run. Inspect the full failure details if needed.
+```
+
+The skill wraps verbose commands when useful. It does not automatically intercept every tool call, and small outputs are better handled directly.
+
+If `codex plugin` is unavailable, update the Codex CLI or use the standalone commands below. If Python is installed as `python` rather than `python3`, substitute that executable. Native Windows plugin installation is not covered by the shell commands above; WSL is the tested path here.
+
+### Uninstall
+
+```sh
+codex plugin remove token-sieve@token-sieve-local
+codex plugin marketplace remove token-sieve-local
+```
+
+The clone and captured logs are retained. Delete them separately only when you no longer need them.
+
+## Standalone use
+
+The same CLI works without installing the Codex plugin. From the cloned repository directory:
 
 ```sh
 python3 scripts/sieve.py run --cwd /your/repo -- npm test
